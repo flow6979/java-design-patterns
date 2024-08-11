@@ -15,6 +15,7 @@ public class ExponentialBackoffStrategy implements ThrottlingStrategy {
   private final int maxRetries;
   private final long initialDelayMillis;
   private final double multiplier;
+  private final ConcurrentMap<String, Integer> retryCounts = new ConcurrentHashMap<>();
 
   /**
    * Constructs an ExponentialBackoffStrategy.
@@ -32,12 +33,13 @@ public class ExponentialBackoffStrategy implements ThrottlingStrategy {
   @Override
   public ThrottlingAction apply(String clientId) {
     // Compute the delay before retrying
-    int retryCount = getRetryCount(clientId);
+    int retryCount = retryCounts.getOrDefault(clientId, 0);
     if (retryCount >= maxRetries) {
       return ThrottlingAction.REJECT;
     }
 
     long delay = computeDelay(retryCount);
+    retryCounts.put(clientId, retryCount + 1);
     // You would typically schedule a retry with the computed delay here
     // For simplicity, we're just returning the action
 
@@ -61,8 +63,4 @@ public class ExponentialBackoffStrategy implements ThrottlingStrategy {
    * @param clientId The identifier of the client.
    * @return The retry count.
    */
-  private int getRetryCount(String clientId) {
-    // This should be implemented to track the actual retry count for each client
-    return 0; // Placeholder
-  }
 }

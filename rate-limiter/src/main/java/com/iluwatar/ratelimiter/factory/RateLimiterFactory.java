@@ -17,16 +17,19 @@ public class RateLimiterFactory {
 
   public RateLimiter createRateLimiter() {
     String algorithm = config.getEnvironment().getProperty("ratelimiter.algorithm", "FIXED_WINDOW");
+    int maxRequests = Integer.parseInt(config.getEnvironment().getProperty("ratelimiter.maxRequests", "100"));
+    long windowSizeMillis = Long.parseLong(config.getEnvironment().getProperty("ratelimiter.windowSizeMillis", "10000"));
+
     switch (algorithm) {
       case "SLIDING_WINDOW":
-        return new SlidingWindowRateLimiter();
+        return new SlidingWindowRateLimiter(maxRequests, windowSizeMillis);
       case "TOKEN_BUCKET":
-        return new TokenBucketRateLimiter();
+        return new TokenBucketRateLimiter(maxRequests, windowSizeMillis);
       case "LEAKY_BUCKET":
-        return new LeakyBucketRateLimiter();
+        return new LeakyBucketRateLimiter(maxRequests, windowSizeMillis);
       case "FIXED_WINDOW":
       default:
-        return new FixedWindowRateLimiter();
+        return new FixedWindowRateLimiter(maxRequests, windowSizeMillis);
     }
   }
 }

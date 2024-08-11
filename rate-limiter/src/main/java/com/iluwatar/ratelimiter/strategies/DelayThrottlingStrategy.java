@@ -18,7 +18,7 @@ public class DelayThrottlingStrategy implements ThrottlingStrategy {
    *
    * @param delayMillis The delay time in milliseconds before retrying the request.
    */
-  public DelayThrottlingStrategy(long delayMillis) {
+  public DelayThrottlingStrategy(long delayMillis){
     this.delayMillis = delayMillis;
   }
 

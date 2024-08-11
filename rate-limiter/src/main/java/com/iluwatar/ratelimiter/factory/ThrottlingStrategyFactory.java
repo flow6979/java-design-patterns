@@ -16,14 +16,18 @@ public class ThrottlingStrategyFactory {
 
   public ThrottlingStrategy createThrottlingStrategy() {
     String strategy = config.getEnvironment().getProperty("ratelimiter.throttlingStrategy", "DELAY");
+    int maxRetries = Integer.parseInt(config.getEnvironment().getProperty("ratelimiter.maxRetries", "3"));
+    long delayMillis = Long.parseLong(config.getEnvironment().getProperty("ratelimiter.delayMillis", "1000"));
+    double backoffFactor = Double.parseDouble(config.getEnvironment().getProperty("ratelimiter.backoffFactor", "2.0"));
+
     switch (strategy) {
       case "REJECT":
         return new RejectThrottlingStrategy();
       case "EXPONENTIAL_BACKOFF":
-        return new ExponentialBackoffStrategy();
+        return new ExponentialBackoffStrategy(maxRetries, delayMillis, backoffFactor);
       case "DELAY":
       default:
-        return new DelayThrottlingStrategy();
+        return new DelayThrottlingStrategy(delayMillis);
     }
   }
 }
