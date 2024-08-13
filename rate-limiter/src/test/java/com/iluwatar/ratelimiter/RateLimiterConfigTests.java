@@ -1,8 +1,12 @@
 package com.iluwatar.ratelimiter;
 
 import com.iluwatar.ratelimiter.config.RateLimiterConfig;
+import com.iluwatar.ratelimiter.config.AlgorithmType;
+import com.iluwatar.ratelimiter.config.ThrottlingStrategyType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.core.env.Environment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,15 +19,16 @@ public class RateLimiterConfigTests {
 
   @BeforeEach
   public void setUp() {
+    // Create a mock Environment object
+    Environment env = Mockito.mock(Environment.class);
     // Initialize RateLimiterConfig with sample configuration data
-    // In a real application, you might load from a properties file or other source
-    rateLimiterConfig = new RateLimiterConfig();
+    rateLimiterConfig = new RateLimiterConfig(env);
 
-    // Sample configuration values
-    rateLimiterConfig.setAlgorithmByEndpoint("endpoint1", AlgorithmType.FIXED_WINDOW);
-    rateLimiterConfig.setAlgorithmByEndpoint("endpoint2", AlgorithmType.SLIDING_WINDOW);
-    rateLimiterConfig.setThrottlingStrategyByEndpointAndClientType("endpoint1", "STANDARD", ThrottlingStrategyType.DELAY);
-    rateLimiterConfig.setThrottlingStrategyByEndpointAndClientType("endpoint2", "PREMIUM", ThrottlingStrategyType.REJECT);
+    // Configure sample settings
+    Mockito.when(env.getProperty("rate.limiter.algorithm.endpoint1")).thenReturn("FIXED_WINDOW");
+    Mockito.when(env.getProperty("rate.limiter.algorithm.endpoint2")).thenReturn("SLIDING_WINDOW");
+    Mockito.when(env.getProperty("rate.limiter.throttling.endpoint1.standard")).thenReturn("DELAY");
+    Mockito.when(env.getProperty("rate.limiter.throttling.endpoint2.premium")).thenReturn("REJECT");
   }
 
   @Test

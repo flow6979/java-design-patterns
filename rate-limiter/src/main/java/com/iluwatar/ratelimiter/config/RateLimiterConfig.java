@@ -22,6 +22,10 @@ public class RateLimiterConfig {
     this.environment = environment;
   }
 
+  public Environment getEnvironment() {
+    return environment;
+  }
+
   @Bean
   public RateLimiter rateLimiter() {
     String algorithm = environment.getProperty("ratelimiter.algorithm", "FIXED_WINDOW");
@@ -57,5 +61,30 @@ public class RateLimiterConfig {
       default:
         return new DelayThrottlingStrategy(delayMillis);
     }
+  }
+
+  /**
+   * Fetches the rate limiting algorithm type for a given endpoint.
+   * If no specific algorithm is configured, it defaults to FIXED_WINDOW.
+   *
+   * @param endpoint the endpoint for which the algorithm type is to be fetched
+   * @return the AlgorithmType for the specified endpoint
+   */
+  public AlgorithmType getAlgorithmByEndpoint(String endpoint) {
+    String algorithm = environment.getProperty("rate.limiter.algorithm." + endpoint, "FIXED_WINDOW");
+    return AlgorithmType.valueOf(algorithm);
+  }
+
+  /**
+   * Fetches the throttling strategy for a given endpoint and client type.
+   * If no specific strategy is configured, it defaults to DELAY.
+   *
+   * @param endpoint the endpoint for which the strategy is to be fetched
+   * @param clientType the client type for which the strategy is to be fetched
+   * @return the ThrottlingStrategyType for the specified endpoint and client type
+   */
+  public ThrottlingStrategyType getThrottlingStrategyByEndpointAndClientType(String endpoint, String clientType) {
+    String strategy = environment.getProperty("rate.limiter.throttling." + endpoint + "." + clientType, "DELAY");
+    return ThrottlingStrategyType.valueOf(strategy);
   }
 }
